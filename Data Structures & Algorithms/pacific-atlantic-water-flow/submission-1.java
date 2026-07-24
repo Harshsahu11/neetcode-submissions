@@ -1,0 +1,49 @@
+class Solution {
+    int[][] directions = {{1,0},{-1,0},{0,1},{0,-1}};
+    public List<List<Integer>> pacificAtlantic(int[][] heights) {
+        List<List<Integer>> ans = new ArrayList<>();
+        if(heights==null || heights.length==0) return ans;
+
+        int rows = heights.length;
+        int cols = heights[0].length;
+        boolean[][] pacific = new boolean[rows][cols];
+        boolean[][] atlantic = new boolean[rows][cols];
+
+        for(int c=0;c<cols;c++){
+            dfs(heights,pacific,0,c);
+            dfs(heights,atlantic,rows-1,c);
+        }
+
+        for(int r=0;r<rows;r++){
+            dfs(heights,pacific,r,0);
+            dfs(heights,atlantic,r,cols-1);
+        }
+
+        for(int r=0;r<rows;r++){
+            for(int c=0;c<cols;c++){
+                if(pacific[r][c] && atlantic[r][c]){
+                    ans.add(Arrays.asList(r,c));
+                }
+            }
+        }
+        return ans;
+    }
+    private void dfs(int[][] heights,boolean[][] reachable,int r,int c){
+        reachable[r][c] = true;
+
+        for(int[] dir : directions){
+            int newRow = r+dir[0];
+            int newCol = c+dir[1];
+
+            if(newRow<0 ||newRow>=heights.length ||newCol<0 ||newCol>=heights[0].length){
+                continue;
+            }
+            // Skip if already visited to prevent infinite loops
+            if(reachable[newRow][newCol]) continue;
+            // REVERSE FLOOD: We only move to neighbors that are taller or equal
+            if(heights[newRow][newCol]>=heights[r][c]){
+                dfs(heights,reachable,newRow,newCol);
+            }
+        }
+    }
+}
